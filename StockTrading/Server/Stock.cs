@@ -6,22 +6,23 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections;
 using System.Net;
+using System.Xml;
 
 namespace StockServer
 {
-    class Stock
+    public class Stock
     {
         string name;
         double price;
     }
-    class StockListManager
+    public class StockListManager
     {
         private List<Stock> stockList;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        StockListManager()
+        public StockListManager()
         {
             stockList = new List<Stock>();
         }
@@ -60,24 +61,37 @@ namespace StockServer
         }
 
         /// <summary>
-        /// Get the stock price for the specified stock name
+        /// Get the stock price for the specified stock name synchronously.
         /// </summary>
         /// <param name="name">The proper name of the stock</param>
-        private void getStockPrice(string name)
+        /// <returns name="price">The price of the stock; 0.0 if not found.</returns>
+        public double getStockPrice(string name) 
         {
             string requestURL = String.Format("https://query.yahooapis.com/v1/public/yql?q="
-                + "select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" 
+                + "select%20AskRealtime%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" 
                 + "{0}"  
                 + "%22&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",name);
             
+            double price = 0.0d;
             WebRequest request = WebRequest.Create(new Uri(requestURL));
             
             //using the "USING" keyword to ensure that the request is disposed of 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
-
+               //using the USING keyword to ensure the xmlreader is discarded
+               using (XmlReader reader = XmlReader.Create(response.GetResponseStream()))
+               {
+                   reader.ReadToFollowing("AskRealtime");
+                   try
+                   {
+                        price = Double.Parse(reader.ReadElementContentAsString());
+                   } catch (Exception e)
+                   {
+                       Console.WriteLine("Error {0}", e.Message);
+                   }
+               }
             }
-
+            return price;
         }
     }
 }

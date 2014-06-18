@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{FBEAC064-E1F5-4FF0-88D1-2017502A2440}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTests", "ServerTests\ServerTests.csproj", "{76F60826-5F84-4803-B5D6-3BA25938C523}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +15,10 @@ Global
 		{FBEAC064-E1F5-4FF0-88D1-2017502A2440}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBEAC064-E1F5-4FF0-88D1-2017502A2440}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBEAC064-E1F5-4FF0-88D1-2017502A2440}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F60826-5F84-4803-B5D6-3BA25938C523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F60826-5F84-4803-B5D6-3BA25938C523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F60826-5F84-4803-B5D6-3BA25938C523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F60826-5F84-4803-B5D6-3BA25938C523}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
