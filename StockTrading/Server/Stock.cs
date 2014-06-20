@@ -12,12 +12,14 @@ namespace StockServer
 {
     public class Stock
     {
-        string name;
-        double price;
+        public string name;
+        public double price;
     }
     public class StockListManager
     {
+        private const string DEFAULT_FILENAME = "StockList.dat";
         private List<Stock> stockList;
+        private Object stockListLocker = new Object();
 
         /// <summary>
         /// Constructor
@@ -25,13 +27,28 @@ namespace StockServer
         public StockListManager()
         {
             stockList = new List<Stock>();
+            ReadFromFile(DEFAULT_FILENAME);
+            //...should we update at once? ...
+            Update();
+        }
+        public ~StockListManager()
+        {
+            SaveToFile(DEFAULT_FILENAME);
         }
         /// <summary>
         /// Update content in stock list via google finance api
         /// </summary>
         public void Update()
         {
+            for(int i=0; i<stockList.Count; i++)
+            {
+                double price = getStockPrice(stockList[i].name);   //get last price
 
+                lock (stockListLocker)  //mutex
+                {
+                    stockList[i].price = price;
+                }
+            }
         }
 
         /// <summary>
@@ -65,7 +82,7 @@ namespace StockServer
         /// </summary>
         /// <param name="name">The proper name of the stock</param>
         /// <returns name="price">The price of the stock; 0.0 if not found.</returns>
-        public double getStockPrice(string name) 
+        static public double getStockPrice(string name) 
         {
             string requestURL = String.Format("https://query.yahooapis.com/v1/public/yql?q="
                 + "select%20AskRealtime%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" 
