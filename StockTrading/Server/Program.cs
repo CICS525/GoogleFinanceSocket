@@ -12,7 +12,7 @@ namespace StockServer
 {
     class StockServerMain
     {
-        static private const int SERVER_LISTEN_PORT = 11000;
+        private const int SERVER_LISTEN_PORT = 11000;
         static private StockListManager stockListManager = new StockListManager();
 
         static public StockListManager getStockListManager()

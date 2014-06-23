@@ -52,7 +52,7 @@ namespace StockServer
             //...should we update at once? ...
             Update();
         }
-        public ~StockListManager()
+        ~StockListManager()
         {
             SaveToFile(DEFAULT_FILENAME);
         }

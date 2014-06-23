@@ -15,10 +15,10 @@ namespace StockServer
 {
     class Command
     {
-        static public const int ID_ERROR = 0;
-        static public const int ID_QUERRY = 1;
-        static public const int ID_BUY = 2;
-        static public const int ID_SELL = 3;
+        public const int ID_ERROR = 0;
+        public const int ID_QUERRY = 1;
+        public const int ID_BUY = 2;
+        public const int ID_SELL = 3;
 
         public int id;
         public int stockname;
