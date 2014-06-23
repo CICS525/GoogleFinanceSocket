@@ -7,13 +7,34 @@ using System.Threading;
 using System.Collections;
 using System.Net;
 using System.Xml;
+using System.IO;
 
 namespace StockServer
 {
     public class Stock
     {
-        public string name;
-        public double price;
+        private string name;
+        private double price;
+        // public accessors (or FIELDS, as called in C#)
+        #region Accessors
+        public string Name
+        {
+            get { return this.name; }
+            set { name = value; }
+        }
+
+        public double Price
+        {
+            get { return this.price; }
+            set { price = value; }
+        }
+        #endregion
+
+        public Stock(string stockName, double stockPrice)
+        {
+            name = stockName;
+            price = stockPrice;
+        }
     }
     public class StockListManager
     {
@@ -35,6 +56,7 @@ namespace StockServer
         {
             SaveToFile(DEFAULT_FILENAME);
         }
+
         /// <summary>
         /// Update content in stock list via google finance api
         /// </summary>
@@ -42,11 +64,11 @@ namespace StockServer
         {
             for(int i=0; i<stockList.Count; i++)
             {
-                double price = getStockPrice(stockList[i].name);   //get last price
+                double price = getStockPrice(stockList[i].Name);   //get last price
 
                 lock (stockListLocker)  //mutex
                 {
-                    stockList[i].price = price;
+                    stockList[i].Price = price;
                 }
             }
         }
@@ -57,32 +79,53 @@ namespace StockServer
         /// <param name="newItem"></param>
         public void Add(Stock newItem)
         {
-
+            stockList.Add(newItem);
         }
 
         /// <summary>
-        /// Save the stock list into a file
+        /// Save the stock list into a file. Creates the file if it doesn't exist,
+        /// opens it if it does, then writes to it.
         /// </summary>
         /// <param name="filename"></param>
+        /// <throw>IOException</throw>
         public void SaveToFile(string filename)
         {
-
+            // create the file if non-existent, or open one for writing.
+            // does NOT append to the file, overwrites the whole thing.
+            using (StreamWriter writer = new StreamWriter(filename))
+            {
+                foreach (Stock temp in stockList)
+                {
+                    string fileLine = String.Format("{0}, {1}", temp.Name, temp.Price);
+                    writer.WriteLine(fileLine);
+                }
+            }
         }
 
         /// <summary>
         /// Read the stock list to
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">File must already exist on system</param>
         public void ReadFromFile(string filename)
         {
+            using (StreamReader reader = new StreamReader(filename))
+            {
+                string line;
+                string[] tempArray;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    tempArray = line.Split(',');
+                    Add(new Stock(tempArray[0], Double.Parse(tempArray[1])));
+                }
+            }
         }
 
         /// <summary>
         /// Get the stock price for the specified stock name synchronously.
         /// </summary>
         /// <param name="name">The proper name of the stock</param>
-        /// <returns name="price">The price of the stock; 0.0 if not found.</returns>
-        static public double getStockPrice(string name) 
+        /// <returns name="price">The price of the stock; -1 if not found.</returns>
+        public static double getStockPrice(string name) 
         {
             string requestURL = String.Format("https://query.yahooapis.com/v1/public/yql?q="
                 + "select%20AskRealtime%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" 
