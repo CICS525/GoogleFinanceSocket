@@ -123,7 +123,7 @@ namespace StockServer
             }
             catch (Exception e)
             {
-                //wating Aaron to to update...
+               Console.WriteLine("Sorry, an error occured: {0}", e.getMessage);
             }
         }
 
