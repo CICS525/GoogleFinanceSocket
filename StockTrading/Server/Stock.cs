@@ -108,15 +108,22 @@ namespace StockServer
         /// <param name="filename">File must already exist on system</param>
         public void ReadFromFile(string filename)
         {
-            using (StreamReader reader = new StreamReader(filename))
+            try
             {
-                string line;
-                string[] tempArray;
-                while ((line = reader.ReadLine()) != null)
+                using (StreamReader reader = new StreamReader(filename))
                 {
-                    tempArray = line.Split(',');
-                    Add(new Stock(tempArray[0], Double.Parse(tempArray[1])));
+                    string line;
+                    string[] tempArray;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        tempArray = line.Split(',');
+                        Add(new Stock(tempArray[0], Double.Parse(tempArray[1])));
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                //wating Aaron to to update...
             }
         }
 

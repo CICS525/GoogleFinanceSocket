@@ -7,6 +7,7 @@ using System.Threading;
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using StockCommand;
 
 namespace StockServer
 {
@@ -74,14 +75,11 @@ namespace StockServer
             Socket handler = (Socket)para;
             try
             {
-                while (true)     //need to handle network close
-                {
-                    byte[] bytes = new byte[1024];
-                    string data = null;
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                NetworkStream stream = new NetworkStream(handler);
 
-                    Command cmd = new Command(data);
+                while (stream.CanRead && stream.DataAvailable)     //need to handle network close
+                {
+                    Command cmd = Command.ReadFrom(stream);
                     switch(cmd.id)
                     {
                         case Command.ID_QUERRY:
@@ -90,7 +88,14 @@ namespace StockServer
                             break;
                         case Command.ID_SELL:
                             break;
+                        default:
+                            break;
                     }
+
+                    string message = "OK";
+                    byte[] b = Encoding.ASCII.GetBytes(message);
+                    stream.Write(b, 0, message.Length);
+                    Thread.Sleep(1000);
                 }
             }
             catch (Exception e)
