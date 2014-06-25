@@ -123,7 +123,7 @@ namespace StockServer
             }
             catch (Exception e)
             {
-               Console.WriteLine("Sorry, an error occured: {0}", e.getMessage);
+               Console.WriteLine("Sorry, an error occured: {0}", e.Message);
             }
         }
 
