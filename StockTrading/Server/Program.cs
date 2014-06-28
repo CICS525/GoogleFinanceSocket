@@ -87,7 +87,7 @@ namespace StockServer
                     switch (cmd.id)
                     {
                         case Command.ID_QUERRY:
-                            cmd.price = stockListManager.Querry(cmd.stockname);
+                            cmd.price = stockListManager.Query(cmd.stockname);
                             if (cmd.price > 0)
                                 message = string.Format("The recent price of {0} is {1}\r\n", cmd.stockname, cmd.price);
                             else
@@ -131,8 +131,25 @@ namespace StockServer
             //network is closed, do some clean up
         }
 
+        static void test()
+        {
+            Client client = new Client("Tom");                  //should check if the local file is loaded correctly.
+            StockListManager stocks = new StockListManager();   //should check if the local file is loaded correctly.
+
+            stocks.Query("MSFT");
+            stocks.Query("MSFT");      //next time querry same stock should not connect server again.
+            stocks.Update();
+
+            bool sucS = client.Sell("MSFT", 100);
+            bool sucB = client.Buy("MSFT", 100);
+            string msg = client.ListClientInfo();
+            Console.WriteLine(msg);
+        }
+
         static void Main(string[] args)
         {
+            //test();  <-- Please use this to test APIs, by Eli
+
             //create thread for refresh stock list
             Thread tRefresh = new Thread(RefreshStockListThread);
             tRefresh.Start();
