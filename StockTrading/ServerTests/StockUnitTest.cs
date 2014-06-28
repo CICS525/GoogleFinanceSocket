@@ -17,5 +17,12 @@ namespace ServerTests
             double msftPrice = StockListManager.getStockPrice("MSFT");
             Assert.IsNotNull(msftPrice);
         }
+
+        [TestMethod]
+        public void TestFileRead()
+        {
+            StockListManager mgr = new StockListManager();
+            Assert.AreEqual(2, mgr.Stocks.Count);
+        }
     }
 }

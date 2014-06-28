@@ -42,6 +42,13 @@ namespace StockServer
         private List<Stock> stockList;
         private Object stockListLocker = new Object();
 
+        #region Accessors
+        public List<Stock> Stocks
+        {
+            get { return this.stockList; }
+        }
+        #endregion
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -71,6 +78,7 @@ namespace StockServer
                     stockList[i].Price = price;
                 }
             }
+            SaveToFile(DEFAULT_FILENAME);
         }
 
         /// <summary>
@@ -102,11 +110,24 @@ namespace StockServer
             }
         }
 
+        /// <summary>
+        /// Looks for the existence of a stock; if it doesn't exist, creates it and
+        /// adds it into the stocklist.
+        /// </summary>
+        /// <param name="stockName"></param>
+        /// <returns>The price of the newly added stock</returns>
         public double Query(string stockName)
         {
-            //if the stock is in stockList, return price directly
-            //if the stock is not in stockList, get last price info, save into stockList then return price
-            return 0;
+            foreach (Stock temp in stockList)
+            {
+                if (temp.Name.Equals(stockName))
+                {
+                    return temp.Price;
+                }
+            }
+            double price = getStockPrice(stockName); //get the price
+            Add(new Stock(stockName, price)); //add into the stockList
+            return price;
         }
 
         /// <summary>
@@ -115,6 +136,9 @@ namespace StockServer
         /// <param name="filename">File must already exist on system</param>
         public void ReadFromFile(string filename)
         {
+            // if the file does not exist, don't do anything, we will create it
+            // when we save
+            if (!File.Exists(filename)) { return; }
             try
             {
                 using (StreamReader reader = new StreamReader(filename))
@@ -146,7 +170,7 @@ namespace StockServer
                 + "{0}"  
                 + "%22&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",name);
             
-            double price = 0.0d;
+            double price = -1.0d;
             WebRequest request = WebRequest.Create(new Uri(requestURL));
             
             //using the "USING" keyword to ensure that the request is disposed of 
