@@ -102,6 +102,13 @@ namespace StockServer
             }
         }
 
+        public double Querry(string stockName)
+        {
+            //if the stock is in stockList, return price directly
+            //if the stock is not in stockList, get last price info, save into stockList then return price
+            return 0;
+        }
+
         /// <summary>
         /// Read the stock list to
         /// </summary>

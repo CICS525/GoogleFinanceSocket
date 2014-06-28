@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using StockCommand;
@@ -11,11 +12,14 @@ namespace Client
 {
     class Program
     {
-        private static string name;
+        private static string clientname;
         public static void StartClient(string hostname, int port)
         {
             // Data buffer for incoming data.
             byte[] bytes = new byte[1024];
+
+            Console.WriteLine("Input Client Username:");
+            clientname = getString();
 
             if(hostname==null)
             {
@@ -41,28 +45,23 @@ namespace Client
                     Console.WriteLine("Socket connected to {0}", sender.RemoteEndPoint.ToString());
 
                     NetworkStream stream = new NetworkStream(sender);
-                    byte[] message = new byte[1024];
 
                     while(true)
                     {
-                        int id = Command.ID_ERROR;
-                        string stockname = "MSFT";
-                        double price = 100.01;
-                        double amount = 500;
-
-                        Command cmd = new Command(id, stockname, price, amount);
+                        Command cmd = GetCommand();
+                        if (cmd == null)
+                            break;  //exit client
+                        
                         cmd.WriteInto(stream);
 
-                        int len = stream.Read(message, 0, message.Length);
-                        message[len] = 0x00;
-                        string msg = System.Text.Encoding.UTF8.GetString(message);
-                        Console.WriteLine("Message: {0}", msg);
+                        Thread.Sleep(10); 
+
+                        ShowServerMessage(stream);
                     }
 
                     // Release the socket.
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
-
                 }
                 catch (ArgumentNullException ane)
                 {
@@ -82,6 +81,67 @@ namespace Client
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private static int debugCounter = 1;
+        static private Command GetCommand()
+        {
+            int id = Command.ID_ERROR;
+            string stockname = "MSFT";
+            double price = 100.01;
+            int amount = 500;
+
+            switch(debugCounter)
+            {
+                case 1:
+                    id = Command.ID_QUERRY;
+                    debugCounter++;
+                    break;
+                case 2:
+                    id = Command.ID_SELL;
+                    debugCounter++;
+                    break;
+                case 3:
+                    id = Command.ID_BUY;
+                    debugCounter++;
+                    break;
+                case 4:
+                    id = Command.ID_INFO;
+                    debugCounter++;
+                    break;
+                case 5:
+                    id = Command.ID_ERROR;
+                    debugCounter++;
+                    break;
+            }
+            if (Command.ID_ERROR == id)
+            {
+                return null;
+            }
+            else
+            {
+                Command cmd = new Command(id, clientname, stockname, price, amount);
+                return cmd;
+            }
+        }
+
+        static private void ShowServerMessage(NetworkStream fromStream)
+        {
+            byte[] message = new byte[1024];
+            int len = fromStream.Read(message, 0, message.Length);
+            message[len] = 0x00;
+            string msg = System.Text.Encoding.UTF8.GetString(message);
+            Console.WriteLine("Message: {0}", msg);
+        }
+
+        static private int getInt()
+        {
+            return 10;
+        }
+
+        static private string getString()
+        {
+            return "ABC";
         }
 
         static void Main(string[] args)

@@ -20,15 +20,11 @@ namespace StockServer
         /// </summary>
         public Client(string username)
         {
+            this.username = username;
+            //open the user file to load his balance and stocklist
+            //if can not find the user's file, then this is a new client, create a new file & save initial balance for him.
             stockOwn = new List<Stock>();
-        }
-
-        /// <summary>
-        /// Query
-        /// </summary>
-        /// <param name="tickername"></param>
-        public void Query(string tickername)
-        {
+            balance = 0;
         }
 
         /// <summary>
@@ -39,7 +35,10 @@ namespace StockServer
         /// <returns></returns>
         public bool Buy(string tickername, int stocks)
         {
-            return false;
+            bool suc = false;
+            if(suc)
+                Save();
+            return suc;
         }
 
         /// <summary>
@@ -50,15 +49,23 @@ namespace StockServer
         /// <returns></returns>
         public bool Sell(string tickername, int stocks)
         {
-            return false;
+            bool suc = false;
+            if (suc)
+                Save();
+            return suc;
+        }
+
+        public string ListClientInfo()
+        {
+            return "return:\r\nclient info in several stings\r\n";
         }
 
         /// <summary>
         /// Save into file as username as filename
         /// </summary>
-        public void Save()
+        private void Save()
         {
-
+            //every client should have a single file to save all his balance and stocklist
         }
     }
 }

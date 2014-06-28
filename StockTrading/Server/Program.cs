@@ -79,23 +79,49 @@ namespace StockServer
 
                 while (stream.CanRead && stream.DataAvailable)     //need to handle network close
                 {
+                    Client client = null;
                     Command cmd = Command.ReadFrom(stream);
-                    switch(cmd.id)
+                    Console.WriteLine("Get command {0} from {1}\r\n", cmd.id, cmd.clientname);
+                    bool suc = false;
+                    string message = null;
+                    switch (cmd.id)
                     {
                         case Command.ID_QUERRY:
+                            cmd.price = stockListManager.Querry(cmd.stockname);
+                            if (cmd.price > 0)
+                                message = string.Format("The recent price of {0} is {1}\r\n", cmd.stockname, cmd.price);
+                            else
+                                message = string.Format("Price not available for {0}\r\n", cmd.stockname);
                             break;
                         case Command.ID_BUY:
+                            client = new Client(cmd.clientname);
+                            suc = client.Buy(cmd.stockname, cmd.amount);
+                            if (suc)
+                                message = string.Format("Successfuly bought {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                            else
+                                message = string.Format("Can not buy {0} of {1}\r\n", cmd.amount, cmd.stockname);
                             break;
                         case Command.ID_SELL:
+                            client = new Client(cmd.clientname);
+                            suc = client.Sell(cmd.stockname, cmd.amount);
+                            if (suc)
+                                message = string.Format("Successfuly selled {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                            else
+                                message = string.Format("Can not sell {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                            break;
+                        case Command.ID_INFO:
+                            client = new Client(cmd.clientname);
+                            message = client.ListClientInfo();
                             break;
                         default:
+                            message = string.Format("Unknow command: ID={0}\r\n", cmd.id);
                             break;
                     }
 
-                    string message = "OK";
+                    Console.WriteLine(message);
                     byte[] b = Encoding.ASCII.GetBytes(message);
                     stream.Write(b, 0, message.Length);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(10);   //delay a little while then continue for next loop
                 }
             }
             catch (Exception e)

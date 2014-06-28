@@ -24,20 +24,23 @@ namespace StockCommand
         public const int ID_QUERRY = 1;
         public const int ID_BUY = 2;
         public const int ID_SELL = 3;
+        public const int ID_INFO = 4;
 
         public int id;
+        public string clientname;
         public string stockname;
         public double price;
-        public double amount;
+        public int amount;
         //to be added...
 
         //public Command(string data)
         //{
         //    Deserialize(data);
         //}
-        public Command(int id, string stockname, double price, double amount)
+        public Command(int id, string clientname, string stockname, double price, int amount)
         {
             this.id = id;
+            this.clientname = clientname;
             this.stockname = stockname;
             this.price = price;
             this.amount = amount;
