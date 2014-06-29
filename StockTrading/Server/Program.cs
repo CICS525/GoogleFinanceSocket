@@ -76,45 +76,51 @@ namespace StockServer
             try
             {
                 NetworkStream stream = new NetworkStream(handler);
-
-                while (stream.CanRead && stream.DataAvailable)     //need to handle network close
+                
+                while (true)     //need to handle network close (stream.CanRead && stream.DataAvailable)
                 {
                     Client client = null;
-                    Command cmd = Command.ReadFrom(stream);
-                    Console.WriteLine("Get command {0} from {1}\r\n", cmd.id, cmd.clientname);
+
+                    byte[] buff = new byte[1024];
+                    int len = stream.Read(buff, 0, buff.Length);
+                    string str = System.Text.Encoding.UTF8.GetString(buff);
+                    Command cmd = Command.DeserializeFromString(str);
+                    //Command cmd = Command.ReadFrom(stream);
+
+                    Console.WriteLine("{0}: Get Command {1};{2};{3}", cmd.clientname, cmd.id, cmd.stockname, cmd.amount);
                     bool suc = false;
                     string message = null;
                     switch (cmd.id)
                     {
-                        case Command.ID_QUERRY:
+                        case Command.ID_QUERY:
                             cmd.price = stockListManager.Query(cmd.stockname);
                             if (cmd.price > 0)
-                                message = string.Format("The recent price of {0} is {1}\r\n", cmd.stockname, cmd.price);
+                                message = string.Format("The recent price of {0} is {1}", cmd.stockname, cmd.price);
                             else
-                                message = string.Format("Price not available for {0}\r\n", cmd.stockname);
+                                message = string.Format("Price not available for {0}", cmd.stockname);
                             break;
                         case Command.ID_BUY:
                             client = new Client(cmd.clientname);
                             suc = client.Buy(cmd.stockname, cmd.amount);
                             if (suc)
-                                message = string.Format("Successfuly bought {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                                message = string.Format("Successfuly bought {0} of {1}", cmd.amount, cmd.stockname);
                             else
-                                message = string.Format("Can not buy {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                                message = string.Format("Can not buy {0} of {1}", cmd.amount, cmd.stockname);
                             break;
                         case Command.ID_SELL:
                             client = new Client(cmd.clientname);
                             suc = client.Sell(cmd.stockname, cmd.amount);
                             if (suc)
-                                message = string.Format("Successfuly selled {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                                message = string.Format("Successfuly selled {0} of {1}", cmd.amount, cmd.stockname);
                             else
-                                message = string.Format("Can not sell {0} of {1}\r\n", cmd.amount, cmd.stockname);
+                                message = string.Format("Can not sell {0} of {1}", cmd.amount, cmd.stockname);
                             break;
                         case Command.ID_INFO:
                             client = new Client(cmd.clientname);
                             message = client.ListClientInfo();
                             break;
                         default:
-                            message = string.Format("Unknow command: ID={0}\r\n", cmd.id);
+                            message = string.Format("Unknow command: ID={0}", cmd.id);
                             break;
                     }
 

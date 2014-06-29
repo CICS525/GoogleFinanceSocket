@@ -8,6 +8,7 @@ using System.Collections;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
 
 //////////////////////////////////////////////////////////////////////////////////////
 ///  This Command define & implement should be shared by both server & client      ///
@@ -21,7 +22,7 @@ namespace StockCommand
     public class Command
     {
         public const int ID_ERROR = -1;
-        public const int ID_QUERRY = 1;
+        public const int ID_QUERY = 1;
         public const int ID_BUY = 2;
         public const int ID_SELL = 3;
         public const int ID_INFO = 4;
@@ -33,10 +34,9 @@ namespace StockCommand
         public int amount;
         //to be added...
 
-        //public Command(string data)
-        //{
-        //    Deserialize(data);
-        //}
+        public Command()
+        {
+        }
         public Command(int id, string clientname, string stockname, double price, int amount)
         {
             this.id = id;
@@ -45,29 +45,17 @@ namespace StockCommand
             this.price = price;
             this.amount = amount;
         }
-        //public string Serialize()
+        //public void WriteInto(Stream stream)
         //{
-        //    return Serialize(this);
+        //    BinaryFormatter b = new BinaryFormatter();
+        //    b.Serialize(stream, this);
         //}
-
-        //static private void ParseCommand(string data) //get info from a string to class member variables
+        //static public Command ReadFrom(Stream stream)
         //{
+        //    BinaryFormatter b = new BinaryFormatter();
+        //    Command c = (Command)b.Deserialize(stream);
+        //    return c;
         //}
-        //static private string CreateCommand()   //create a command string from class member variables
-        //{
-        //    return "to do";
-        //}
-        public void WriteInto(Stream stream)
-        {
-            BinaryFormatter b = new BinaryFormatter();
-            b.Serialize(stream, this);
-        }
-        static public Command ReadFrom(Stream stream)
-        {
-            BinaryFormatter b = new BinaryFormatter();
-            Command c = (Command)b.Deserialize(stream);
-            return c;
-        }
         static public void test(Command cmd)
         {
             MemoryStream s = new MemoryStream();
@@ -79,45 +67,24 @@ namespace StockCommand
             BinaryFormatter b2 = new BinaryFormatter();
             Command c = (Command)b2.Deserialize(s);
         }
-        //static public string Serialize(Command command)
-        //{
-        //    MemoryStream s = new MemoryStream();
-        //    BinaryFormatter b = new BinaryFormatter();
-        //    b.Serialize(s, command);
-        //    s.Seek(0, SeekOrigin.Begin);
-        //    StreamReader sr = new StreamReader(s);
-        //    string str = sr.ReadToEnd();
-        //    s.Close();
-        //    return str;
-        //}
-        //static public Command Deserialize(string str)
-        //{
-        //    MemoryStream s = new MemoryStream();
-        //    StreamWriter sw = new StreamWriter(s);
-        //    sw.Write(str);
-        //    sw.Flush();
-        //    BinaryFormatter b = new BinaryFormatter();
-        //    Command c = (Command)b.Deserialize(s);
-        //    s.Close();
-        //    return c;
-        //}
-        //static public string Serialize(Command command)
-        //{
-        //    //return "abc";
-        //    DataContractSerializer serializer = new DataContractSerializer(typeof(Command));
-        //    return serializer.ToString();
-        //}
-        //static public Command Deserialize(string str)
-        //{
-        //    //return null;
-        //    DataContractSerializer serializer = new DataContractSerializer(typeof(Command));
-        //    MemoryStream stream = new MemoryStream();
-        //    StreamWriter writer = new StreamWriter(stream);
-        //    writer.Write(str);
-        //    writer.Flush();
-        //    stream.Seek(0, SeekOrigin.Begin);
-        //    object obj = serializer.ReadObject(stream);
-        //    return (Command)obj;
-        //}
+        public static string SerializeToString(Command cmd)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Command));
+            using (StringWriter writer = new StringWriter())
+            {
+                serializer.Serialize(writer, cmd);
+                return writer.ToString();
+            }
+        }
+        public static Command DeserializeFromString(string str)
+        {
+            var serializer = new XmlSerializer(typeof(Command));
+            Command result;
+            using (TextReader reader = new StringReader(str))
+            {
+                result = (Command)serializer.Deserialize(reader);
+            }
+            return result;
+        }
     }
 }

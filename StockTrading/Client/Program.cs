@@ -48,11 +48,15 @@ namespace Client
 
                     while(true)
                     {
+                        Console.WriteLine("----------------------------------------");
+
                         Command cmd = GetCommand();
                         if (cmd == null)
                             break;  //exit client
                         
-                        cmd.WriteInto(stream);
+                        //cmd.WriteInto(stream);
+                        string buff = Command.SerializeToString(cmd);
+                        SendCommand(stream, buff);
 
                         Thread.Sleep(10); 
 
@@ -83,69 +87,110 @@ namespace Client
             }
         }
 
-        private static int debugCounter = 1;
+        //private static int debugCounter = 0;
         static private Command GetCommand()
         {
-            int id = Command.ID_ERROR;
-            string stockname = "MSFT";
-            double price = 100.01;
-            int amount = 500;
+            Console.WriteLine("Select: \r\n {0}:Query \r\n {1}:Buy \r\n {2}:Sell \r\n {3}:Info \r\n Others Quit", Command.ID_QUERY, Command.ID_BUY, Command.ID_SELL, Command.ID_INFO);
+            int id = getInt();
+            string stockname = "";
+            double price = 0.0;
+            int amount = 0;
 
-            switch(debugCounter)
-            {
-                case 1:
-                    id = Command.ID_QUERRY;
-                    debugCounter++;
-                    break;
-                case 2:
-                    id = Command.ID_SELL;
-                    debugCounter++;
-                    break;
-                case 3:
-                    id = Command.ID_BUY;
-                    debugCounter++;
-                    break;
-                case 4:
-                    id = Command.ID_INFO;
-                    debugCounter++;
-                    break;
-                case 5:
-                    id = Command.ID_ERROR;
-                    debugCounter++;
-                    break;
-            }
-            if (Command.ID_ERROR == id)
+            //switch(debugCounter)
+            //{
+            //    case 1:
+            //        id = Command.ID_QUERY;
+            //        debugCounter++;
+            //        break;
+            //    case 2:
+            //        id = Command.ID_SELL;
+            //        debugCounter++;
+            //        break;
+            //    case 3:
+            //        id = Command.ID_BUY;
+            //        debugCounter++;
+            //        break;
+            //    case 4:
+            //        id = Command.ID_INFO;
+            //        debugCounter++;
+            //        break;
+            //    case 5:
+            //        id = Command.ID_ERROR;
+            //        debugCounter++;
+            //        break;
+            //}
+
+            if (id < Command.ID_QUERY || id > Command.ID_INFO)
             {
                 return null;
             }
             else
             {
+                Console.WriteLine("Stock name:");
+                stockname = getString();
+
+                if(id==Command.ID_BUY || id==Command.ID_SELL)
+                {
+                    Console.WriteLine("Amount:");
+                    amount = getInt();
+                }
+
                 Command cmd = new Command(id, clientname, stockname, price, amount);
                 return cmd;
             }
         }
 
+        static  private void SendCommand(NetworkStream toStream, string cmdstr)
+        {
+            byte[] buff = System.Text.Encoding.ASCII.GetBytes(cmdstr);
+            int len = cmdstr.Length;
+            toStream.Write(buff, 0, len);
+        }
+
         static private void ShowServerMessage(NetworkStream fromStream)
         {
-            byte[] message = new byte[1024];
-            int len = fromStream.Read(message, 0, message.Length);
-            message[len] = 0x00;
+            byte[] buff = new byte[1024];
+            int len = fromStream.Read(buff, 0, buff.Length);
+            byte[] message = buff.Take(len).ToArray();
             string msg = System.Text.Encoding.UTF8.GetString(message);
-            Console.WriteLine("Message: {0}", msg);
+            Console.WriteLine("Server Return Message: {0}", msg);
         }
 
         static private int getInt()
         {
-            return 10;
+            while (true)
+            {
+                string ln = Console.ReadLine();
+                if (ln.Length > 0)
+                {
+                    int i = Convert.ToInt32(ln);
+                    return i;
+                }
+            }
         }
 
         static private string getString()
         {
-            return "ABC";
+            while(true)
+            {
+                string ln = Console.ReadLine();
+                if (ln.Length > 0)
+                {
+                    return ln;
+                }
+            }
         }
 
         static void Main(string[] args)
         {
+            //int id = Command.ID_ERROR;
+            //string stockname = "MSFT";
+            //double price = 100.01;
+            //int amount = 500;
+            //Command cmd = new Command(id, "clientname", stockname, price, amount);
+            //string xml = Command.SerializeToString(cmd);
+            //Command cmd2 = Command.DeserializeFromString(xml);
+
             StartClient(null, 11000);
         }
     }
