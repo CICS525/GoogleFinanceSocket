@@ -59,10 +59,6 @@ namespace StockServer
             //...should we update at once? ...
             Update();
         }
-        ~StockListManager()
-        {
-            SaveToFile(DEFAULT_FILENAME);
-        }
 
         /// <summary>
         /// Update content in stock list via google finance api
@@ -82,12 +78,16 @@ namespace StockServer
         }
 
         /// <summary>
-        /// Add a new item into the stock list
+        /// Add a new item into the stock list, then saves the file.
         /// </summary>
         /// <param name="newItem"></param>
         public void Add(Stock newItem)
         {
-            stockList.Add(newItem);
+            lock (stockListLocker)
+            {
+                stockList.Add(newItem);
+            }
+            SaveToFile(DEFAULT_FILENAME);
         }
 
         /// <summary>
@@ -115,18 +115,25 @@ namespace StockServer
         /// adds it into the stocklist.
         /// </summary>
         /// <param name="stockName"></param>
-        /// <returns>The price of the newly added stock</returns>
+        /// <returns>The price of the newly added stock, -1 if the stock doesn't exist</returns>
         public double Query(string stockName)
         {
-            foreach (Stock temp in stockList)
+            lock (stockListLocker)
             {
-                if (temp.Name.Equals(stockName))
+                foreach (Stock temp in stockList)
                 {
-                    return temp.Price;
+                    if (temp.Name.Equals(stockName))
+                    {
+                        return temp.Price;
+                    }
                 }
             }
+
             double price = getStockPrice(stockName); //get the price
-            Add(new Stock(stockName, price)); //add into the stockList
+            if (price > -1)
+            {
+                Add(new Stock(stockName, price)); //add into the stockList
+            }
             return price;
         }
 
