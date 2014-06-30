@@ -9,7 +9,7 @@ namespace ServerTests
     [TestClass]
     public class StockUnitTest
     {
-        StockListManager mgr = new StockListManager();
+        StockListManager mgr = StockListManager.getStockListManager(); //new StockListManager();
         /// <summary>
         /// Test the intial correctness of the method
         /// </summary>

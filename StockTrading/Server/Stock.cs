@@ -11,10 +11,12 @@ using System.IO;
 
 namespace StockServer
 {
+    [Serializable]
     public class Stock
     {
         private string name;
         private double price;
+        private int amount;
         // public accessors (or FIELDS, as called in C#)
         #region Accessors
         public string Name
@@ -28,19 +30,46 @@ namespace StockServer
             get { return this.price; }
             set { price = value; }
         }
+
+        public int Amount
+        {
+            get { return this.amount; }
+            set { amount = value; }
+        }
         #endregion
+
+        public Stock()
+        {
+            name = null;
+            price = 0;
+            amount = 0;
+        }
 
         public Stock(string stockName, double stockPrice)
         {
             name = stockName;
             price = stockPrice;
         }
+        public Stock(string stockName, double stockPrice, int stockAmount)
+        {
+            name = stockName;
+            price = stockPrice;
+            amount = stockAmount;
+        }
+        public static bool validPrice(double price)
+        {
+            if (price > -1)
+                return true;
+            else
+                return false;
+        }
     }
-    public class StockListManager
+    public class StockListManager   //singleton
     {
         private const string DEFAULT_FILENAME = "StockList.dat";
         private List<Stock> stockList;
         private Object stockListLocker = new Object();
+        private static StockListManager that = null;
 
         #region Accessors
         public List<Stock> Stocks
@@ -49,10 +78,19 @@ namespace StockServer
         }
         #endregion
 
+        public static StockListManager getStockListManager()
+        {
+            if(that==null)
+            {
+                that = new StockListManager();
+            }
+            return that;
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
-        public StockListManager()
+        private StockListManager()
         {
             stockList = new List<Stock>();
             ReadFromFile(DEFAULT_FILENAME);
@@ -87,7 +125,7 @@ namespace StockServer
             {
                 stockList.Add(newItem);
             }
-            SaveToFile(DEFAULT_FILENAME);
+            //SaveToFile(DEFAULT_FILENAME);
         }
 
         /// <summary>
@@ -130,9 +168,11 @@ namespace StockServer
             }
 
             double price = getStockPrice(stockName); //get the price
-            if (price > -1)
+            //if (price > -1)
+            if( Stock.validPrice(price) )
             {
                 Add(new Stock(stockName, price)); //add into the stockList
+                SaveToFile(DEFAULT_FILENAME);
             }
             return price;
         }
@@ -155,7 +195,8 @@ namespace StockServer
                     while ((line = reader.ReadLine()) != null)
                     {
                         tempArray = line.Split(',');
-                        Add(new Stock(tempArray[0], Double.Parse(tempArray[1])));
+                        Stock s = new Stock(tempArray[0], Double.Parse(tempArray[1]));
+                        Add(s);
                     }
                 }
             }

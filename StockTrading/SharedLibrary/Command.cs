@@ -26,6 +26,10 @@ namespace StockCommand
         public const int ID_BUY = 2;
         public const int ID_SELL = 3;
         public const int ID_INFO = 4;
+        public const int ID_QUIT = 5;
+
+        public const int ID_MIN = 1;
+        public const int ID_MAX = 5;
 
         public int id;
         public string clientname;
@@ -69,22 +73,32 @@ namespace StockCommand
         }
         public static string SerializeToString(Command cmd)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Command));
-            using (StringWriter writer = new StringWriter())
+            try
             {
-                serializer.Serialize(writer, cmd);
-                return writer.ToString();
+                XmlSerializer serializer = new XmlSerializer(typeof(Command));
+                using (StringWriter writer = new StringWriter())
+                {
+                    serializer.Serialize(writer, cmd);
+                    return writer.ToString();
+                }
             }
+            catch (Exception e) { }
+            return null;
         }
         public static Command DeserializeFromString(string str)
         {
-            var serializer = new XmlSerializer(typeof(Command));
-            Command result;
-            using (TextReader reader = new StringReader(str))
+            try
             {
-                result = (Command)serializer.Deserialize(reader);
+                var serializer = new XmlSerializer(typeof(Command));
+                Command result;
+                using (TextReader reader = new StringReader(str))
+                {
+                    result = (Command)serializer.Deserialize(reader);
+                }
+                return result;
             }
-            return result;
+            catch (Exception e) { }
+            return null;
         }
     }
 }

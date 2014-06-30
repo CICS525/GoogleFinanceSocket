@@ -14,7 +14,7 @@ namespace StockServer
     class StockServerMain
     {
         private const int SERVER_LISTEN_PORT = 11000;
-        static private StockListManager stockListManager = new StockListManager();
+        static private StockListManager stockListManager = StockListManager.getStockListManager(); //new StockListManager();
 
         static public StockListManager getStockListManager()
         {
@@ -76,16 +76,21 @@ namespace StockServer
             try
             {
                 NetworkStream stream = new NetworkStream(handler);
-                
-                while (true)     //need to handle network close (stream.CanRead && stream.DataAvailable)
+
+                while (stream.CanRead)     //need to handle network close (stream.CanRead && stream.DataAvailable)
                 {
                     Client client = null;
 
                     byte[] buff = new byte[1024];
                     int len = stream.Read(buff, 0, buff.Length);
+                    if (len <= 0)
+                        break;
+
                     string str = System.Text.Encoding.UTF8.GetString(buff);
                     Command cmd = Command.DeserializeFromString(str);
                     //Command cmd = Command.ReadFrom(stream);
+                    if (cmd == null)
+                        break;  //nothing to do for error
 
                     Console.WriteLine("{0}: Get Command {1};{2};{3}", cmd.clientname, cmd.id, cmd.stockname, cmd.amount);
                     bool suc = false;
@@ -140,21 +145,21 @@ namespace StockServer
         static void test()
         {
             Client client = new Client("Tom");                  //should check if the local file is loaded correctly.
-            StockListManager stocks = new StockListManager();   //should check if the local file is loaded correctly.
+            StockListManager stocks = StockListManager.getStockListManager();   //should check if the local file is loaded correctly.
 
             stocks.Query("MSFT");
             stocks.Query("MSFT");      //next time querry same stock should not connect server again.
             stocks.Update();
 
-            bool sucS = client.Sell("MSFT", 100);
-            bool sucB = client.Buy("MSFT", 100);
+            bool sucS = client.Sell("MSFT", 5);
+            bool sucB = client.Buy("MSFT", 10);
             string msg = client.ListClientInfo();
             Console.WriteLine(msg);
         }
 
         static void Main(string[] args)
         {
-            //test();  <-- Please use this to test APIs, by Eli
+            //test();  //<-- Please use this to test APIs, by Eli
 
             //create thread for refresh stock list
             Thread tRefresh = new Thread(RefreshStockListThread);

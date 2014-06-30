@@ -52,15 +52,23 @@ namespace Client
 
                         Command cmd = GetCommand();
                         if (cmd == null)
-                            break;  //exit client
-                        
-                        //cmd.WriteInto(stream);
-                        string buff = Command.SerializeToString(cmd);
-                        SendCommand(stream, buff);
+                        {
+                            Console.WriteLine("Invalid number! Please try again.");
+                            continue;
+                        }
+                        else
+                        {
+                            if (cmd.id == Command.ID_QUIT)
+                                break;  //exit client
 
-                        Thread.Sleep(10); 
+                            //cmd.WriteInto(stream);
+                            string buff = Command.SerializeToString(cmd);
+                            SendCommand(stream, buff);
 
-                        ShowServerMessage(stream);
+                            Thread.Sleep(10);
+
+                            ShowServerMessage(stream);
+                        }
                     }
 
                     // Release the socket.
@@ -90,45 +98,23 @@ namespace Client
         //private static int debugCounter = 0;
         static private Command GetCommand()
         {
-            Console.WriteLine("Select: \r\n {0}:Query \r\n {1}:Buy \r\n {2}:Sell \r\n {3}:Info \r\n Others Quit", Command.ID_QUERY, Command.ID_BUY, Command.ID_SELL, Command.ID_INFO);
+            Console.WriteLine("Select by Number: \r\n {0}:Query \r\n {1}:Buy \r\n {2}:Sell \r\n {3}:Balance Info \r\n {4}:Quit\r\n.....", Command.ID_QUERY, Command.ID_BUY, Command.ID_SELL, Command.ID_INFO, Command.ID_QUIT);
             int id = getInt();
             string stockname = "";
             double price = 0.0;
             int amount = 0;
 
-            //switch(debugCounter)
-            //{
-            //    case 1:
-            //        id = Command.ID_QUERY;
-            //        debugCounter++;
-            //        break;
-            //    case 2:
-            //        id = Command.ID_SELL;
-            //        debugCounter++;
-            //        break;
-            //    case 3:
-            //        id = Command.ID_BUY;
-            //        debugCounter++;
-            //        break;
-            //    case 4:
-            //        id = Command.ID_INFO;
-            //        debugCounter++;
-            //        break;
-            //    case 5:
-            //        id = Command.ID_ERROR;
-            //        debugCounter++;
-            //        break;
-            //}
-
-            if (id < Command.ID_QUERY || id > Command.ID_INFO)
+            if (id < Command.ID_MIN || id > Command.ID_MAX)
             {
                 return null;
             }
             else
             {
-                Console.WriteLine("Stock name:");
-                stockname = getString();
-
+                if (id != Command.ID_INFO && id!=Command.ID_QUIT)
+                {
+                    Console.WriteLine("Input stock name:");
+                    stockname = getString().ToUpper();
+                }
                 if(id==Command.ID_BUY || id==Command.ID_SELL)
                 {
                     Console.WriteLine("Amount:");
@@ -153,7 +139,7 @@ namespace Client
             int len = fromStream.Read(buff, 0, buff.Length);
             byte[] message = buff.Take(len).ToArray();
             string msg = System.Text.Encoding.UTF8.GetString(message);
-            Console.WriteLine("Server Return Message: {0}", msg);
+            Console.WriteLine("Server Return Message:\r\n{0}", msg);
         }
 
         static private int getInt()
@@ -161,11 +147,18 @@ namespace Client
             while (true)
             {
                 string ln = Console.ReadLine();
-                if (ln.Length > 0)
+                try
                 {
-                    int i = Convert.ToInt32(ln);
-                    return i;
+                    if (ln.Length > 0)
+                    {
+                        int i = Convert.ToInt32(ln);
+                        return i;
+                    }
                 }
+                catch (Exception e)
+                {
+                }
+                Console.WriteLine("This is not a valid number! Please try again:");
             }
         }
 
@@ -174,10 +167,17 @@ namespace Client
             while(true)
             {
                 string ln = Console.ReadLine();
-                if (ln.Length > 0)
+                try
                 {
-                    return ln;
+                    if (ln.Length > 0)
+                    {
+                        return ln;
+                    }
                 }
+                catch (Exception e)
+                {
+                }
+                Console.WriteLine("This is not a valid string! Please try again:");
             }
         }
 
