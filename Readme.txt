@@ -71,8 +71,11 @@ Folder Name : StockTrading
 	- Step1: Open the command prompt and change the path to "..\StockTrading\Server\bin\Debug"
 	- Step2: Type "Server" and press enter (now the Server is started)
 	- Step3: Open another command prompt and change the path to "..\StockTrading\Client\bin\Debug"
-	- Step4: Type "Client" and press enter (now the client will be connected to the Server with the mentioned socket) and responds to the user input action
-
+	- Step4: Type "Client" and press enter (now the client will be connected to the Server with the mentioned socket) 
+	- Step5: User now has the following abilities: 1)Query 2)Buy 3)Sell 4)Balance Info (check status) 5)Quit
+ 	Example Scenario: The user can select a stock to buy by entering the number '2'. Then the user will be prompted to enter a stock name such as 'yahoo'. 
+	After that, the user will enter an amount to purchase: User will either get a message displaying that the transaction has been completed or a message showing that the user doesn't have the correct balance.
+	After purchasing the stock, the user can check the balance by entering the number '4'.
 
 ***************************************************************************************
 
@@ -92,6 +95,9 @@ Folder Name : StockTrading
 
 
 3. how can you extend it in the near future ?
-	- control the loops based on required input
+	- implement more sufficient protocols in part 2 that will control the loops in a manner to allow users to exit a scenario without the necessity of closing the entire program
+	- create an interface that will allow users to have a more user-friendly approach such as clicking buttons in a window instead of typing the numbers through a command prompt
+	- users have the ability to download the stock index and check the history of stock changes in comparison other stocks as well: this will give users the ability to perform multiple transactions
+
 
 
