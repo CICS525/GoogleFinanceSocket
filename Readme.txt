@@ -5,7 +5,7 @@ ________________________________________________
 --------------------------|-----------------------|
 	Name			Student ID
 --------------------------|-----------------------|
-Aaron Cheng
+Aaron Cheng			48770085
 --------------------------|-----------------------|
 YeHua Deng			89668131
 --------------------------|-----------------------|
@@ -85,19 +85,20 @@ Folder Name : StockTrading
 
 1. how you came up with your implementation ?
 
-	- For Part2 used Synchronous method so that same server responds to two different clients
+	- For Part2 used Synchronous method so that same server responds to two different clients. The server has two threads, each responding to a single client, 
+	one which saves stock information, another that queries it.
 	- For Part3 we have used multiple client requesting response from a single server. Used Multi-thread to implement this logic. That for each client a new thread instant will be created so that more than one client can be connected at the same time. The communication between the each client to the server is made independent. In the same way the Server creates a separate thread for each Client's Communication.
 
 
 2. what are the limitations of your program ?
-	- since we used windows console applicaiton not much user friendly.
-	- the client program will be asking the user input in loops that is user has to keep on giving the input..
+	- since we used windows console application is not very user friendly.
+	- the client program will be asking the user input in loops that is user has to keep on giving the input.
+	- Error checking is not the most robust; if it so happens that the application is run on a day the stock market is closed, the price returned 
+	  can either be -1 (meaning not found), the last retrieved price of the stock, or none.
+	- Having a username of a stock is allowed
 
 
 3. how can you extend it in the near future ?
 	- implement more sufficient protocols in part 2 that will control the loops in a manner to allow users to exit a scenario without the necessity of closing the entire program
 	- create an interface that will allow users to have a more user-friendly approach such as clicking buttons in a window instead of typing the numbers through a command prompt
 	- users have the ability to download the stock index and check the history of stock changes in comparison other stocks as well: this will give users the ability to perform multiple transactions
-
-
-
